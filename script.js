@@ -2,7 +2,7 @@
 // CONFIGURACIÓN DE GOOGLE SHEETS
 // =============================================
 
-const GOOGLE_SHEET_ID = '18cZo3pvrIRegxJK4Xnddgu1cjDbc-k55-gewkONA4S0'; // Reemplaza con tu ID real
+const GOOGLE_SHEET_ID = '18cZo3pvrIRegxJK4Xnddgu1cjDbc-k55-gewkONA4S0';
 const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?`;
 
 // =============================================
@@ -170,92 +170,122 @@ class GoogleSheetsCMS {
     }
 
     // =============================================
-    // RENDERIZADO DE SECCIONES - COMPLETAMENTE CORREGIDO
+    // RENDERIZADO DE SECCIONES - CON EFECTO FADE CORREGIDO
     // =============================================
-
-    renderSlider() {
-        const slider = document.getElementById('imageSlider');
-        const indicators = document.getElementById('sliderIndicators');
+renderSlider() {
+    const slider = document.getElementById('imageSlider');
+    const indicators = document.getElementById('sliderIndicators');
+    
+    console.log('🎠 RENDERIZANDO SLIDER - Datos:', this.data.slider);
+    
+    // Estilos para el contenedor principal
+    slider.style.position = 'relative';
+    slider.style.overflow = 'hidden';
+    slider.style.width = '100%';
+    slider.style.height = '100%';
+    
+    if (!this.data.slider || this.data.slider.length === 0) {
+        console.log('🚨 No hay datos del slider, usando contenido por defecto');
+        slider.innerHTML = this.getDefaultSliderHTML();
+        indicators.innerHTML = this.getDefaultIndicatorsHTML();
         
-        console.log('🎠 RENDERIZANDO SLIDER - Datos:', this.data.slider);
+        // Inicializar el slider por defecto
+        setTimeout(() => {
+            const defaultSlides = document.querySelectorAll('.slide');
+            if (defaultSlides.length > 0) {
+                defaultSlides[0].classList.add('active');
+                defaultSlides[0].style.opacity = '1';
+                defaultSlides[0].style.visibility = 'visible';
+                defaultSlides[0].style.zIndex = '2';
+            }
+        }, 100);
+        return;
+    }
+
+    slider.innerHTML = '';
+    indicators.innerHTML = '';
+
+    this.data.slider.forEach((slide, index) => {
+        if (!slide) return;
         
-        if (!this.data.slider || this.data.slider.length === 0) {
-            console.log('🚨 No hay datos del slider, usando contenido por defecto');
-            slider.innerHTML = this.getDefaultSliderHTML();
-            indicators.innerHTML = this.getDefaultIndicatorsHTML();
-            return;
-        }
-
-        slider.innerHTML = '';
-        indicators.innerHTML = '';
-
-        this.data.slider.forEach((slide, index) => {
-            if (!slide) return;
-            
-            // EXTRAER DATOS CON DIFERENTES NOMBRES POSIBLES DE COLUMNAS
-            const title = slide.titulo || slide.title || slide.header || 'RadioWave FM';
-            const description = slide.descripcion || slide.description || slide.text || 'La mejor música las 24 horas del día';
-            let imageUrl = slide.imagen || slide.image || slide.url || slide.background || '';
-            
-            // LIMPIAR Y VALIDAR URL DE IMAGEN
-            if (imageUrl) {
-                imageUrl = imageUrl.trim();
-                // Asegurarse de que la URL sea válida
-                if (!imageUrl.startsWith('http')) {
-                    console.warn(`⚠️ URL de imagen inválida en slide ${index}:`, imageUrl);
-                    imageUrl = this.getDefaultSliderImage(index);
-                }
-            } else {
+        const title = slide.titulo || slide.title || slide.header || 'Radio Power Urbana';
+        const description = slide.descripcion || slide.description || slide.text || 'Tu emisora favorita con la mejor música';
+        let imageUrl = slide.imagen || slide.image || slide.url || slide.background || '';
+        
+        // Validar y sanitizar la URL de la imagen
+        if (imageUrl) {
+            imageUrl = imageUrl.trim();
+            if (!imageUrl.match(/\.(jpeg|jpg|png|webp)$/i) || !imageUrl.startsWith('http')) {
+                console.warn(`⚠️ URL de imagen inválida en slide ${index}:`, imageUrl);
                 imageUrl = this.getDefaultSliderImage(index);
             }
-            
-            console.log(`🖼️ Slide ${index}:`, { title, description, imageUrl });
-            
-            const slideDiv = document.createElement('div');
-            slideDiv.className = 'slide';
-            slideDiv.style.backgroundImage = `url('${imageUrl}')`;
-            slideDiv.style.backgroundSize = 'cover';
-            slideDiv.style.backgroundPosition = 'center';
-            slideDiv.style.backgroundRepeat = 'no-repeat';
-            
-            slideDiv.innerHTML = `
-                <div class="slide-content">
-                    <h2>${title}</h2>
-                    <p>${description}</p>
-                </div>
-            `;
-            
-            slider.appendChild(slideDiv);
-
-            const indicator = document.createElement('div');
-            indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
-            indicator.onclick = () => goToSlide(index);
-            indicators.appendChild(indicator);
-        });
-
-        // Reiniciar el slider
-        currentSlide = 0;
-        updateSlider();
+        } else {
+            imageUrl = this.getDefaultSliderImage(index);
+        }
         
-        console.log(`✅ Slider renderizado con ${this.data.slider.length} slides`);
-    }
+        console.log(`🖼️ Slide ${index}:`, { title, description, imageUrl });
+        
+        // Crear el slide con una imagen de fondo
+        const slideDiv = document.createElement('div');
+        slideDiv.className = `slide ${index === 0 ? 'active' : ''}`;
+        slideDiv.style.backgroundImage = `url('${imageUrl}')`;
+        slideDiv.style.backgroundSize = 'cover';
+        slideDiv.style.backgroundPosition = 'center';
+        slideDiv.style.backgroundRepeat = 'no-repeat';
+        
+        // Contenido del slide
+        slideDiv.innerHTML = `
+            <div class="slide-content">
+                <h2>${title}</h2>
+                <p>${description}</p>
+            </div>
+        `;
+        
+        slider.appendChild(slideDiv);
+
+        // Crear indicador
+        const indicator = document.createElement('div');
+        indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+        indicator.onclick = () => goToSlide(index);
+        indicators.appendChild(indicator);
+        
+        // Precargar imagen para evitar parpadeos
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => {
+            console.log(`✅ Imagen cargada para slide ${index}:`, imageUrl);
+        };
+        img.onerror = () => {
+            console.warn(`❌ Error al cargar imagen para slide ${index}:`, imageUrl);
+            slideDiv.style.backgroundImage = `url('${this.getDefaultSliderImage(index)}')`;
+        };
+    });
+
+    // Inicializar primer slide
+    currentSlide = 0;
+    setTimeout(() => {
+        updateSlider();
+    }, 100);
+    
+    console.log(`✅ Slider renderizado con ${this.data.slider.length} slides`);
+}
 
     // Contenido por defecto para el slider
     getDefaultSliderHTML() {
         return `
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
                 <div class="slide-content">
-                    <h2>RadioWave FM</h2>
-                    <p>La mejor música las 24 horas del día</p>
+                    <h2>Radio Power Urbana</h2>
+                    <p>Tu emisora favorita con la mejor música</p>
                 </div>
             </div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1571266028243-d220c9c3b2d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1571266028243-d220c9c3b2d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
                 <div class="slide-content">
                     <h2>Shows en Vivo</h2>
                     <p>DJs profesionales con los mejores sets</p>
                 </div>
             </div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
                 <div class="slide-content">
                     <h2>Música Sin Límites</h2>
                     <p>Todos los géneros, todas las emociones</p>
@@ -281,7 +311,7 @@ class GoogleSheetsCMS {
         return defaultImages[index] || defaultImages[0];
     }
 
-    // Otras funciones render (se mantienen igual pero con mejor logging)
+    // Otras funciones render (se mantienen igual)
     renderDJs() {
         const djGrid = document.getElementById('djGrid');
         console.log('🎧 RENDERIZANDO DJs - Datos:', this.data.djs);
@@ -305,7 +335,14 @@ class GoogleSheetsCMS {
                         <p class="dj-specialty">${dj.especialidad || dj.specialty || dj.genre || 'Música'}</p>
                         <div class="dj-schedule">${dj.horario || dj.schedule || dj.time || 'Horario no especificado'}</div>
                     </div>
-                    <p class="dj-description">${dj.descripcion || dj.description || 'Descripción del DJ'}</p>
+                    <p class="dj-description">${dj.descripcion || dj.description || ''}</p>
+                    ${dj.youtube ? `
+                        <a href="${dj.youtube}" target="_blank" rel="noopener" class="dj-youtube-link">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </a>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
@@ -324,6 +361,11 @@ class GoogleSheetsCMS {
                         <div class="dj-schedule">Lunes a Viernes: 6:00 - 10:00 AM</div>
                     </div>
                     <p class="dj-description">Especialista en música electrónica con más de 8 años de experiencia.</p>
+                    <a href="https://youtube.com" target="_blank" rel="noopener" class="dj-youtube-link">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
         `;
@@ -511,7 +553,7 @@ let autoplayEnabled = true;
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Iniciando RadioWave FM...');
+    console.log('🚀 Iniciando Radio Power Urbana...');
     
     // Iniciar carga de datos desde Google Sheets
     cms.loadAllData();
@@ -524,6 +566,64 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     initMobileMenu();
 });
+
+// =============================================
+// SISTEMA DE SLIDER CON EFECTO FADE - CORREGIDO
+// =============================================
+
+function changeSlide(direction) {
+    const slides = document.querySelectorAll('.slide');
+    if (!slides.length) return;
+    
+    currentSlide += direction;
+    if (currentSlide >= slides.length) currentSlide = 0;
+    if (currentSlide < 0) currentSlide = slides.length - 1;
+    updateSlider();
+}
+
+function goToSlide(slideIndex) {
+    const slides = document.querySelectorAll('.slide');
+    if (slideIndex >= 0 && slideIndex < slides.length) {
+        currentSlide = slideIndex;
+        updateSlider();
+    }
+}
+
+function updateSlider() {
+    const slides = document.querySelectorAll('.slide');
+    const indicators = document.querySelectorAll('.indicator');
+    
+    if (slides.length === 0) return;
+    
+    // EFECTO FADE - Usar clases CSS en lugar de estilos inline
+    slides.forEach((slide, index) => {
+        if (index === currentSlide) {
+            slide.classList.add('active');
+            slide.style.opacity = '1';
+            slide.style.visibility = 'visible';
+            slide.style.zIndex = '2';
+        } else {
+            slide.classList.remove('active');
+            slide.style.opacity = '0';
+            slide.style.zIndex = '1';
+            
+            // Ocultar completamente después de la transición
+            setTimeout(() => {
+                if (index !== currentSlide) {
+                    slide.style.visibility = 'hidden';
+                }
+            }, 800);
+        }
+    });
+    
+    // Actualizar indicadores
+    indicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentSlide);
+    });
+}
+
+// Auto-slide con efecto fade
+setInterval(() => changeSlide(1), 6000);
 
 // =============================================
 // HERRAMIENTAS DE DEBUG MEJORADAS
@@ -540,6 +640,9 @@ function debugSlides() {
         const style = window.getComputedStyle(slide);
         console.log(`📸 Slide ${index}:`, {
             backgroundImage: style.backgroundImage,
+            opacity: style.opacity,
+            visibility: style.visibility,
+            zIndex: style.zIndex,
             titulo: slide.querySelector('h2')?.textContent,
             descripcion: slide.querySelector('p')?.textContent,
             elemento: slide
@@ -586,44 +689,6 @@ window.debugSlides = debugSlides;
 window.reloadData = reloadData;
 window.testWithSampleData = testWithSampleData;
 window.checkGoogleSheets = checkGoogleSheets;
-
-// =============================================
-// SISTEMA DE SLIDER
-// =============================================
-
-function changeSlide(direction) {
-    const slides = document.querySelectorAll('.slide');
-    if (!slides.length) return;
-    
-    currentSlide += direction;
-    if (currentSlide >= slides.length) currentSlide = 0;
-    if (currentSlide < 0) currentSlide = slides.length - 1;
-    updateSlider();
-}
-
-function goToSlide(slideIndex) {
-    const slides = document.querySelectorAll('.slide');
-    if (slideIndex >= 0 && slideIndex < slides.length) {
-        currentSlide = slideIndex;
-        updateSlider();
-    }
-}
-
-function updateSlider() {
-    const slider = document.getElementById('imageSlider');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    if (slider) {
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-    }
-    
-    indicators.forEach((indicator, index) => {
-        indicator.classList.toggle('active', index === currentSlide);
-    });
-}
-
-// Auto-slide
-setInterval(() => changeSlide(1), 6000);
 
 // =============================================
 // SISTEMA DE MODAL DE GALERÍA
@@ -743,7 +808,7 @@ window.addEventListener('click', function(event) {
 });
 
 // =============================================
-// SISTEMA DE RADIO PLAYER (se mantiene igual)
+// SISTEMA DE RADIO PLAYER
 // =============================================
 
 function initRadioPlayer() {
@@ -791,7 +856,7 @@ function initRadioPlayer() {
             progressBar.style.width = '0%';
             currentTimeDisplay.textContent = '--:--';
             totalTimeDisplay.textContent = 'PAUSADO';
-            songTitle.textContent = 'RadioWave FM - Desconectado';
+            songTitle.textContent = 'Radio Power - Desconectado';
         }
     });
 
@@ -855,18 +920,18 @@ function initRadioPlayer() {
         radioAudio.volume = volumeSlider.value / 100;
         
         radioAudio.addEventListener('loadstart', () => {
-            songTitle.textContent = 'RadioWave FM - Conectando...';
+            songTitle.textContent = 'Radio Power - Conectando...';
         });
         
         radioAudio.addEventListener('canplay', () => {
-            if (songTitle.textContent === 'RadioWave FM - Conectando...') {
-                songTitle.textContent = 'RadioWave FM - En Vivo';
+            if (songTitle.textContent === 'Radio Power - Conectando...') {
+                songTitle.textContent = 'Radio Power - En Vivo';
             }
         });
         
         radioAudio.addEventListener('error', (e) => {
             console.log('Radio: Stream error, retrying...', e);
-            songTitle.textContent = 'RadioWave FM - Reconectando...';
+            songTitle.textContent = 'Radio Power - Reconectando...';
             setTimeout(() => {
                 if (isPlaying) {
                     initializeRadio();
@@ -907,7 +972,7 @@ function initRadioPlayer() {
 }
 
 // =============================================
-// SISTEMA DE NAVEGACIÓN (se mantiene igual)
+// SISTEMA DE NAVEGACIÓN
 // =============================================
 
 function initNavigation() {
@@ -972,7 +1037,7 @@ function initNavigation() {
 }
 
 // =============================================
-// MENÚ MÓVIL (se mantiene igual)
+// MENÚ MÓVIL
 // =============================================
 
 function initMobileMenu() {
@@ -1049,21 +1114,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// =============================================
-// PRUEBA AUTOMÁTICA - DESCOMENTAR SI ES NECESARIO
-// =============================================
-
-/*
-// Prueba automática después de 5 segundos
-setTimeout(() => {
-    console.log('🕐 Verificando estado del slider...');
-    if (cms.data.slider.length === 0) {
-        console.log('⚠️ No se cargaron datos del slider, usando datos de prueba');
-        testWithSampleData();
-    } else {
-        console.log('✅ Datos del slider cargados correctamente');
-        debugSlides();
-    }
-}, 5000);
-*/

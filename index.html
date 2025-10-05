@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RadioWeb - Tu Radio Online</title>
+    <title>Radio Power Urbana</title>
+	<meta name="description" content="Escucha Radio Power, tu emisora favorita con la mejor música y programas en vivo.">
+    <meta name="keywords" content="radio, música, programas en vivo, Radio Power">
+	
+	<!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/android-chrome-192x192.png">
+    <link rel="manifest" href="./assets/icons/site.webmanifest">
+	
+	
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,13 +22,14 @@
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Cargando RadioWeb FM...</div>
+        <div class="loading-text">Cargando RadioPower...</div>
     </div>
 
     <!-- Header -->
     <header>
         <nav>
-            <div class="logo">RadioWeb FM</div>
+			<img src="assets/logo.png" alt="Logo Radio Power" class="w-32 h-16" width="128" height="64">
+            <div class="logo">Urbana</div>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="#inicio" class="nav-link">Inicio</a></li>
                 <li class="nav-item"><a href="#djs" class="nav-link">DJs</a></li>
@@ -64,7 +75,7 @@
                     </button>
                     <span class="volume-percentage" id="volumePercentage">70%</span>
                 </div>
-                <div class="song-title" id="songTitle">RadioWen FM - Conectando...</div>
+                <div class="song-title" id="songTitle">RadioPower - Conectando...</div>
                 <div class="progress-container" id="progressContainer">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
@@ -146,9 +157,37 @@
         </div>
     </section>
 
+    <!-- Sección de iconos agregada aquí -->
+    <div class="footer-icons">
+        <a class="icon" href="https://mytuner-radio.com/radio/radio-power-colombia-499975/" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/QCpxD3m3/zAoZTQJ.png" alt="MyTuner" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://onlineradiobox.com/co/power/?cs=co.power&played=1" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/Tw53kmWh/CYYfq5I.png" alt="RadioBox" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://co.radio.net/s/radiopowerco" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/d0x0mn3z/U7WLbpt.png" alt="RadioNet" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://www.emisorascolombianas.co/radio-power" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/0jg2hQpn/BvJlMxK.png" alt="Emisoras Colombianas" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://tunein.com/radio/Radio-Power-s329905/" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/Nf65q1CH/KLSVKQ9.png" alt="TuneIn" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://radios.com.co/power/" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/Hk3njTgW/kFGlaei.png" alt="Radios.com.co" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://www.claromusica.com/radios/CO/DC/fusagasuga" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/KYzzMCGP/Dfwu5Gl.png" alt="Claro Música" loading="lazy" width="64" height="64" />
+        </a>
+        <a class="icon" href="https://thenonstopradio.com/radio/radio-power" target="_blank" rel="noopener">
+            <img src="https://i.postimg.cc/NjQLg5ZP/sl25VFe.png" alt="Non Stop Radio" loading="lazy" width="64" height="64" />
+        </a>
+    </div>
+
     <!-- Footer -->
     <footer>
-        <p>&copy; <span id="currentYear"></span> RadioWeb FM. Todos los derechos reservados.</p>
+        <p>&copy; <span id="currentYear"></span> Radio Power. Todos los derechos reservados.</p>
     </footer>
 
     <!-- Modal -->
@@ -199,7 +238,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
